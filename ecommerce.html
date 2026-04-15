@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-commerce Product Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-6">
+
+  <h1 class="text-3xl font-bold mb-6 text-center">🛍 E-commerce Product Page</h1>
+
+  <!-- Filter -->
+  <div class="mb-6 flex justify-center">
+    <label class="mr-2 font-semibold">Filter by category:</label>
+    <select id="categoryFilter" class="p-2 border rounded">
+      <option value="all">All</option>
+      <option value="electronics">Electronics</option>
+      <option value="clothing">Clothing</option>
+    </select>
+  </div>
+
+  <!-- Products Grid -->
+  <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+  </div>
+
+  <!-- Cart Section -->
+  <div class="mt-10 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold mb-2">
+      🛒 Cart 
+      <span id="cartCount" class="bg-blue-600 text-white px-2 py-0.5 rounded-full text-sm">0</span>
+    </h2>
+
+    <ul id="cartItems" class="list-disc ml-6 mb-4"></ul>
+
+    <button onclick="clearCart()" 
+      class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+      Clear Cart
+    </button>
+  </div>
+
+  <script>
+    const products = [
+      { id: 1, name: "Smartphone", price: 699, category: "electronics", image: "https://via.placeholder.com/300x200?text=Smartphone" },
+      { id: 2, name: "T-Shirt", price: 19, category: "clothing", image: "https://via.placeholder.com/300x200?text=T-Shirt" },
+      { id: 3, name: "Laptop", price: 999, category: "electronics", image: "https://via.placeholder.com/300x200?text=Laptop" },
+      { id: 4, name: "Jeans", price: 49, category: "clothing", image: "https://via.placeholder.com/300x200?text=Jeans" }
+    ];
+
+    const productGrid = document.getElementById("productGrid");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const cartItemsList = document.getElementById("cartItems");
+    const cartCount = document.getElementById("cartCount");
+
+    function displayProducts(category = "all") {
+      productGrid.innerHTML = "";
+
+      const filtered = category === "all"
+        ? products
+        : products.filter(p => p.category === category);
+
+      filtered.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 shadow rounded";
+
+        card.innerHTML = `
+          <img src="${product.image}" class="w-full h-40 object-cover mb-3 rounded"/>
+          <h3 class="text-lg font-semibold">${product.name}</h3>
+          <p class="text-gray-600 mb-2">$${product.price}</p>
+          <button onclick="addToCart(${product.id})"
+            class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Add to Cart
+          </button>
+        `;
+
+        productGrid.appendChild(card);
+      });
+    }
+
+    function addToCart(productId) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const product = products.find(p => p.id === productId);
+      cart.push(product);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartDisplay();
+    }
+
+    function clearCart() {
+      localStorage.removeItem("cart");
+      updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cartItemsList.innerHTML = "";
+
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name} - $${item.price}`;  // ✅ FIXED
+        cartItemsList.appendChild(li);
+      });
+
+      cartCount.textContent = cart.length;
+    }
+
+    categoryFilter.addEventListener("change", () => {
+      displayProducts(categoryFilter.value);
+    });
+
+    displayProducts();
+    updateCartDisplay();
+  </script>
+
+</body>
+</html>
